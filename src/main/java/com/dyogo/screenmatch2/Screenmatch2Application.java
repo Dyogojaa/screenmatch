@@ -1,5 +1,6 @@
 package com.dyogo.screenmatch2;
 
+import com.dyogo.screenmatch2.model.DadosEpisodio;
 import com.dyogo.screenmatch2.model.DadosSerie;
 import com.dyogo.screenmatch2.service.ConsumoApi;
 import com.dyogo.screenmatch2.service.ConverteDados;
@@ -23,16 +24,27 @@ public class Screenmatch2Application implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
-
 		var api = new ConsumoApi();
-		String endereco = "https://omdbapi.com/?t=breaking+bad&apikey=6585022c";
-		var json = api.obterDados(endereco);
 		var converter = new ConverteDados();
 
-		DadosSerie serie  = converter.obterDados(json, DadosSerie.class);
+		// Chamada para obter informações da série
+		String endereco = "https://omdbapi.com/?t=breaking+bad&apikey=6585022c";
+		var json = api.obterDados(endereco);
+		DadosSerie serie = converter.obterDados(json, DadosSerie.class);
+		System.out.println("Série: " + serie.titulo());
 
-		System.out.println(serie);
+		// Segunda chamada para obter a temporada e os episódios
+		endereco = "https://omdbapi.com/?t=breaking+bad&Season=1&apikey=6585022c";
+		json = api.obterDados(endereco);
+		DadosSerie dadosSerie = converter.obterDados(json, DadosSerie.class);
 
+		// Verifique se a lista de episódios não é nula
+		if (dadosSerie.episodios() != null) {
+			System.out.println("Episódios da Temporada 1 para a série " + dadosSerie.titulo() + ":");
+			dadosSerie.episodios().forEach(System.out::println);
+		} else {
+			System.out.println("Nenhum episódio encontrado.");
+		}
 
 	}
 }
